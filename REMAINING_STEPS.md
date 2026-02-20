@@ -24,13 +24,14 @@ The workflow is already in the repo (`.github/workflows/daily-reminders.yml`). I
    git push -u origin main
    ```
 
-### 2. Add the function URL as a secret
+### 2. Add secrets for the workflow
 
 1. Open your repo on GitHub → **Settings** → **Secrets and variables** → **Actions**.
-2. Click **New repository secret**.
-3. **Name:** `SUPABASE_REMINDERS_FUNCTION_URL`
-4. **Value:** your Edge Function URL (Supabase Dashboard → **Edge Functions** → **send-due-reminders** → copy the URL). It looks like:
-   `https://hsotmvmsxfsdtgveyhiy.supabase.co/functions/v1/send-due-reminders`
+2. Add two repository secrets:
+   - **Name:** `SUPABASE_REMINDERS_FUNCTION_URL`  
+     **Value:** your Edge Function URL (Supabase Dashboard → **Edge Functions** → **send-due-reminders** → copy the URL). Example: `https://xxxxx.supabase.co/functions/v1/send-due-reminders`
+   - **Name:** `SUPABASE_ANON_KEY`  
+     **Value:** your Supabase anon (public) key (Supabase Dashboard → **Project Settings** → **API** → **anon public**). The workflow sends this in the `Authorization` header so the function accepts the request.
 
 ### 3. Confirm it works
 
