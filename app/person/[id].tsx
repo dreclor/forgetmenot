@@ -24,6 +24,7 @@ export default function PersonDetailScreen() {
   const [loading, setLoading] = useState(true);
   const [reachingOut, setReachingOut] = useState(false);
   const [calendarError, setCalendarError] = useState<string | null>(null);
+  const [makingDue, setMakingDue] = useState(false);
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
 
@@ -55,6 +56,27 @@ export default function PersonDetailScreen() {
     setCalendarError(null);
     const { success, error } = await addCheckInEvent(person.name);
     if (!success) setCalendarError(error ?? 'Could not add event');
+  };
+
+  const handleMakeDueNow = async () => {
+    if (!person) return;
+    setMakingDue(true);
+    const past = new Date();
+    past.setHours(past.getHours() - 1);
+    const { error } = await supabase
+      .from('person')
+      .update({ next_reminder_at: past.toISOString() })
+      .eq('id', person.id);
+    setMakingDue(false);
+    if (error) {
+      Alert.alert('Error', error.message);
+      return;
+    }
+    await refresh();
+    Alert.alert(
+      'Set to due',
+      'This person is now due. Run the "Daily reminders" workflow in GitHub Actions (Actions tab → Run workflow), or wait for the scheduled run. You should get a push notification if your device has registered for push.'
+    );
   };
 
   if (loading || !person) {
@@ -113,6 +135,15 @@ export default function PersonDetailScreen() {
         ) : (
           <Text style={styles.reachedOutButtonText}>I reached out</Text>
         )}
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.testButton, { borderColor: colors.tabIconDefault }]}
+        onPress={handleMakeDueNow}
+        disabled={makingDue}
+      >
+        <Text style={[styles.testButtonText, { color: colors.tabIconDefault }]}>
+          {makingDue ? '...' : 'Make due now (test)'}
+        </Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -188,5 +219,15 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  testButton: {
+    marginTop: 24,
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    alignItems: 'center',
+  },
+  testButtonText: {
+    fontSize: 14,
   },
 });

@@ -41,6 +41,24 @@ After that, the workflow runs automatically every day at 9:00 AM UTC. To change 
 
 ---
 
+## Testing the reminder flow
+
+To confirm push notifications work end-to-end:
+
+1. **Have at least one person** in the app (add or import someone).
+2. **Register for push:** Open the app on a **real device** (not simulator), log in, and grant notification permission when prompted. That saves your push token to Supabase.
+3. **Make someone due:** Open that person’s detail screen → tap **“Make due now (test)”**. Their next reminder is set to the past so the function will include them.
+4. **Trigger the workflow:** GitHub → your repo → **Actions** → **Daily reminders** → **Run workflow** → **Run workflow**.
+5. **Check:** Within a minute you should get a push: “Time to check in with [Name].” Tapping it should open Messages (if they have a phone) and the app.
+
+If you don’t get a push: confirm the workflow run succeeded (green check, Status 200), then check Supabase → **Edge Functions** → **send-due-reminders** → **Logs** for that run.
+
+---
+
+**Troubleshooting (green check but no notification):** Check the workflow step output for **Response**. If `dueCount: 0`, no one is due—use "Make due now (test)" in the app, then run the workflow again. If `dueCount` > 0 but `sent: 0`, your push token isn't saved—enable push in Settings and check Supabase Table Editor → **user_push_tokens**. Redeploy the function (`npm run supabase:deploy-functions`) to see logs in Supabase → Edge Functions → send-due-reminders → Logs.
+
+---
+
 ## Optional
 
 - **5. Email auth** – In Supabase: **Authentication → Providers → Email** (enable signup, templates, or SMTP if you want better deliverability).
