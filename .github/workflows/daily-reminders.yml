@@ -1,0 +1,18 @@
+# Calls your Supabase Edge Function once per day so reminder push notifications are sent.
+# Requires: repo on GitHub + secret SUPABASE_REMINDERS_FUNCTION_URL (the function URL).
+
+name: Daily reminders
+
+on:
+  schedule:
+    # 9:00 AM UTC every day (adjust cron for your timezone if needed)
+    - cron: '0 9 * * *'
+  workflow_dispatch: # allows manual "Run workflow" from GitHub Actions tab
+
+jobs:
+  trigger-reminders:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call send-due-reminders
+        run: |
+          curl -X POST "${{ secrets.SUPABASE_REMINDERS_FUNCTION_URL }}"
